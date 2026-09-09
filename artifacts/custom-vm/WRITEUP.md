@@ -1,16 +1,18 @@
 # Dark Cover — Custom VM write-up
 
-## Flag
+## Submission status — important correction
+
+**No CTF-platform-accepted flag has been recovered from the supplied archive.**
 
 ```text
 IATCQ{vm_hash_collision_7uh6mPo}
 ```
 
-This is a 32-byte, `IATCQ{...}`-formatted input accepted by the supplied checker.
+is a 32-byte `IATCQ{...}` input accepted by the **supplied local executable**, but it was rejected by the live CTF platform. It is a collision in the executable's 32-bit predicate, **not** the platform's intended flag; do **not** submit it again.
 
-![Terminal verification screenshot](screenshots/flag-verified.png)
+![Local-binary verification screenshot](screenshots/flag-verified.png)
 
-The unrendered command/output shown above is also saved in [`verification.txt`](verification.txt).
+The screenshot and [`verification.txt`](verification.txt) document only the local executable result (`ACCESS GRANTED`). They are not evidence of a successful CTF submission.
 
 ---
 
@@ -85,9 +87,9 @@ The final `e9` instruction also confirms that the loop index is `0x20`. Its real
 H == 0x86d03165
 ```
 
-## Building a valid formatted preimage
+## Building a locally valid formatted preimage
 
-The 32-bit result does **not** uniquely identify a 32-byte input. Instead of trying to recover an unknowable single original preimage, I constructed a conventional flag-shaped preimage that reaches the exact target hash.
+The 32-bit result does **not** uniquely identify a 32-byte input. The binary therefore cannot distinguish the author's intended flag from a different 32-byte preimage that reaches the same target hash. I constructed one conventional flag-shaped collision for analysis of that weakness.
 
 [`analyze_vm.py`](analyze_vm.py) reproduces the LCG decryption and prints the table/bytecode split. The included [`mitm_solver.cpp`](mitm_solver.cpp) does this deterministically:
 
@@ -108,4 +110,10 @@ g++ -std=c++20 -O3 -march=native -pthread -o mitm_solver mitm_solver.cpp
 # [+] ACCESS GRANTED. Flag accepted!
 ```
 
-The final execution is the verification shown in the screenshot. The locally compiled `mitm_solver` is intentionally not committed; only its source is included.
+The final execution is only a verification against the distributed executable, shown in the screenshot. The locally compiled `mitm_solver` is intentionally not committed; only its source is included.
+
+## Why this does not recover the platform flag
+
+A 32-bit final hash has at most 32 bits of identifying information, whereas a 25-character flag payload has far more possible values. The matching preimage above proves that the binary has many accepted inputs; it cannot identify which one was selected when the challenge was configured on the CTF platform.
+
+The platform rejection confirms that its checker compares against a separately configured intended flag rather than relying only on this executable. Recovering that exact value now requires an additional legitimate source of information: for example, a challenge hint/attachment not included in the archive, the challenge source, or the author's intended plaintext. Until such information is available, submitting further hash collisions would only consume attempts and is not a valid solve.
