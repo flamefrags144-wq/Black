@@ -1,0 +1,3 @@
+user@arena:~/Black/artifacts/custom-vm$ FLAG=IATCQ{vm_hash_collision_7uh6mPo}
+user@arena:~/Black/artifacts/custom-vm$ ./unpacked/Custom\ VM/hyperstate/hyperstate4 "$FLAG"
+[+] ACCESS GRANTED. Flag accepted!
